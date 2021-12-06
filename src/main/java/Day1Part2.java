@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Day2 {
+public class Day1Part2 {
 
     public static void main(String[] args) {
         List<Integer> mesures = recupererMesures("entree.txt");
@@ -12,7 +12,7 @@ public class Day2 {
 
     private static int compterNombreSommesFenetresDeTroisPlusGrandesQuePrecedente(List<Integer> mesures) {
         List<Integer> sommesDeFenetresDeTrois = calculerSommesFenetresDeTrois(mesures);
-        return Day1.compterNombreMesuresPlusGrandesQuePrecedente(sommesDeFenetresDeTrois);
+        return Day1Part1.compterNombreMesuresPlusGrandesQuePrecedente(sommesDeFenetresDeTrois);
     }
 
     private static List<Integer> calculerSommesFenetresDeTrois(List<Integer> mesures) {
