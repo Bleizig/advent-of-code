@@ -116,7 +116,6 @@ public class Day10Part2 {
         return PAIRE_CARACTERES.containsKey(caractere);
     }
 
-
     private static List<String> recupererLignes(String nomFichier) {
         return Util.lireFichier(nomFichier);
     }
