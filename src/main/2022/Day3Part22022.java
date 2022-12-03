@@ -10,10 +10,10 @@ public class Day3Part22022 {
     }
 
     private static int determinerSommePriorites(List<SacsGroupe> sacsGroupes) {
-        return sacsGroupes.stream().map(Day3Part22022::determinerPriorite).mapToInt(Integer::valueOf).sum();
+        return sacsGroupes.stream().mapToInt(Day3Part22022::determinerPriorite).sum();
     }
 
-    private static int determinerPriorite(SacsGroupe sacsGroupe) {
+    private static Integer determinerPriorite(SacsGroupe sacsGroupe) {
         for (char itemSac1 : sacsGroupe.sac1.toCharArray()) {
             if (sacsGroupe.sac2.indexOf(itemSac1) != -1 && sacsGroupe.sac3.indexOf(itemSac1) != -1) {
                 return calculerScoreItem(itemSac1);
