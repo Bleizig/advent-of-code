@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 public class Day2Part12022 {
 
     public static void main(String[] args) {
-        List<Strategie> strategies = lireStrategies("entree.txt");
+        List<Strategie> strategies = lireStrategies();
         int resultat = determinerScoreTotal(strategies);
         System.out.println("Réponse=" + resultat);
     }
@@ -36,8 +36,8 @@ public class Day2Part12022 {
         }
     }
 
-    private static List<Strategie> lireStrategies(String nomFichier) {
-        List<String> lignes = Util.lireFichier(nomFichier);
+    private static List<Strategie> lireStrategies() {
+        List<String> lignes = Util.lireFichier("entree.txt");
         return lignes.stream().map(Day2Part12022::convertirLigneEnStrategie).collect(Collectors.toList());
     }
 
