@@ -41,7 +41,6 @@ public class Day3Part22022 {
         return sacsGroupes;
     }
 
-
     record SacsGroupe(String sac1, String sac2, String sac3) {
     }
 }
