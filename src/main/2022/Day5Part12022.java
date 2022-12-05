@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Day5Part12022 {
 
@@ -28,8 +30,9 @@ public class Day5Part12022 {
         }
 
         private void deplacerCaisse(int pileDepart, int pileArrivee) {
-            Caisse caisseDeplacee = getPile(pileDepart-1).pop();
-            getPile(pileArrivee-1).add(caisseDeplacee);
+            //Le -1 est vraiment pourri, la premiere pile est la 1 et non la 0 ...
+            Caisse caisseDeplacee = getPile(pileDepart - 1).pop();
+            getPile(pileArrivee - 1).add(caisseDeplacee);
         }
 
         private Stack<Caisse> getPile(int pileDepart) {
@@ -40,7 +43,7 @@ public class Day5Part12022 {
             return pilesCaisses.stream().map(stack -> stack.peek().id).reduce("", String::concat);
         }
 
-        public void ajouterPile() {
+        public void ajouterPile(int indexPile) {
             pilesCaisses.add(new Stack<>());
         }
 
@@ -62,13 +65,18 @@ public class Day5Part12022 {
 
     private static class LecteurInput {
         public static final int ESPACE_ENTRE_ID_CAISSES = 4;
+        public static final String PATTERN_LIGNE_MOUVEMENT_REGEXP = "move (.*) from (.*) to (.*)";
+        public static final Pattern PATTERN_LIGNE_MOUVEMENT = Pattern.compile(PATTERN_LIGNE_MOUVEMENT_REGEXP);
+        public static final int POSITION_NOMBRE_CAISSES_DANS_PATTERN_MOUVEMENT = 1;
+        public static final int POSITION_PILE_DEPART_DANS_PATTERN_MOUVEMENT = 2;
+        public static final int POSITION_PILE_ARRIVEE_DANS_PATTERN_MOUVEMENT = 3;
         EtatPiles etatPiles;
 
         List<MouvementsPiles> mouvementsPiles;
 
         public LecteurInput(String nomFichier) {
             List<String> lignes = Util.lireFichier(nomFichier);
-            etatPiles = new EtatPiles();
+
             mouvementsPiles = new ArrayList<>();
 
             Stack<String> lignesEtatPiles = new Stack<>();
@@ -77,12 +85,41 @@ public class Day5Part12022 {
             do {
                 lignesEtatPiles.add(lignes.get(indexLigne));
                 indexLigne++;
-            } while (lignes.get(indexLigne).trim().startsWith("["));
+            } while (!lignes.get(indexLigne).isBlank());
 
-            Scanner scanner = new Scanner(lignes.get(indexLigne));
+            initialiserEtatPiles(lignesEtatPiles);
+
+            indexLigne++; //ligne vide
+
+            while (indexLigne < lignes.size()) {
+                ajouteMouvement(lignes.get(indexLigne));
+                indexLigne++;
+            }
+        }
+
+        private void ajouteMouvement(String ligneMouvement) {
+            //Hommage à toi Pattern !
+            final Matcher m = PATTERN_LIGNE_MOUVEMENT.matcher(ligneMouvement);
+            if (!m.find()) {
+                throw new RuntimeException("Houston ... ");
+            }
+
+            int nombreCaissesADeplacer = Integer.parseInt(m.group(POSITION_NOMBRE_CAISSES_DANS_PATTERN_MOUVEMENT));
+            int pileDepart = Integer.parseInt(m.group(POSITION_PILE_DEPART_DANS_PATTERN_MOUVEMENT));
+            int pileArrivee = Integer.parseInt(m.group(POSITION_PILE_ARRIVEE_DANS_PATTERN_MOUVEMENT));
+
+            MouvementsPiles mouvementPile = new MouvementsPiles(nombreCaissesADeplacer, pileDepart, pileArrivee);
+            mouvementsPiles.add(mouvementPile);
+        }
+
+        private void initialiserEtatPiles(Stack<String> lignesEtatPiles) {
+            etatPiles = new EtatPiles();
+
+            String ligneNomsDePiles = lignesEtatPiles.pop();
+            Scanner scanner = new Scanner(ligneNomsDePiles);
+
             while (scanner.hasNextInt()) {
-                scanner.nextInt(); //TODO: on se fout de l'identifiant de la pile.
-                etatPiles.ajouterPile();
+                etatPiles.ajouterPile(scanner.nextInt());
             }
 
             while (!lignesEtatPiles.isEmpty()) {
@@ -93,22 +130,6 @@ public class Day5Part12022 {
                         etatPiles.ajouterCaisse(i, String.valueOf(idCaisse));
                     }
                 }
-            }
-            indexLigne++; //ligne des identifiants de piles
-            indexLigne++; //ligne vide
-
-            while (indexLigne < lignes.size()) {
-                String ligneMouvement = lignes.get(indexLigne);
-                Scanner scannerLigneMouvement = new Scanner(ligneMouvement);
-                scannerLigneMouvement.skip("[a-zA-Z\s]*");
-                int nombreCaissesADeplacer = scannerLigneMouvement.nextInt();
-                scannerLigneMouvement.skip("[a-zA-Z\s]*");
-                int pileDepart = scannerLigneMouvement.nextInt();
-                scannerLigneMouvement.skip("[a-zA-Z\s]*");
-                int pileArrivee = scannerLigneMouvement.nextInt();
-                MouvementsPiles mouvementPile = new MouvementsPiles(nombreCaissesADeplacer, pileDepart, pileArrivee);
-                mouvementsPiles.add(mouvementPile);
-                indexLigne++;
             }
         }
 
