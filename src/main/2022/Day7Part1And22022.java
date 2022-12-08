@@ -2,6 +2,10 @@ import java.util.*;
 
 public class Day7Part1And22022 {
 
+    public static final int TAILLE_REPERTOIRE_MAX_QUESTION_1 = 100000;
+    public static final int ESPACE_PHYSIQUE_TOTAL = 70000000;
+    public static final int ESPACE_LIBRE_MIN_A_ATTEINDRE = 30000000;
+
     public static void main(String[] args) {
         Repertoire racine = recupererArborescence();
         long resultatPart1 = determinerSommesDeTousLesRepertoiresDe100kOuMoins(racine);
@@ -12,17 +16,18 @@ public class Day7Part1And22022 {
     private static long determinerSommesDeTousLesRepertoiresDe100kOuMoins(Repertoire racine) {
         List<Long> tailles = racine.recupererTaillesDeTousLesRepertoires();
 
-        return tailles.stream().filter(l -> l <= 100000).reduce(Long::sum).orElse(0L);
+        return tailles.stream().filter(l -> l <= TAILLE_REPERTOIRE_MAX_QUESTION_1).reduce(Long::sum).orElse(0L);
     }
 
     private static long determinerTailleRepertoireASupprimerPourAvoir30MilDePlace(Repertoire racine) {
         List<Long> tailles = racine.recupererTaillesDeTousLesRepertoires();
 
-        long placeMinALiberer = 30000000 - (70000000 - racine.tailleTotaleDesFichiers);
+        long espaceLibreActuel = ESPACE_PHYSIQUE_TOTAL - racine.tailleTotaleDesFichiers;
+        long placeMinALiberer = ESPACE_LIBRE_MIN_A_ATTEINDRE - espaceLibreActuel;
 
         tailles.sort(Collections.reverseOrder());
 
-        return tailles.stream().filter(t -> t >= placeMinALiberer).min(Long::compareTo).get();
+        return tailles.stream().filter(t -> t >= placeMinALiberer).min(Long::compareTo).orElseThrow();
     }
 
 
@@ -32,7 +37,6 @@ public class Day7Part1And22022 {
         assert lignes.get(0).equals("$ cd /") : "Le fichier doit commencer par un cd de la racine";
         assert lignes.get(1).equals("$ ls") : "La deuxième ligne doit demander un contenu de la racine";
 
-        //TODO : passage par référence ok ?
         ContexteParcoursArborescence contexteParcoursArborescence = new ContexteParcoursArborescence();
 
         for (int i = 2; i < lignes.size(); i++) {
@@ -41,7 +45,6 @@ public class Day7Part1And22022 {
             ligneTerminal.appliquerLigne(contexteParcoursArborescence);
         }
 
-        //TODO : passage par référence ok ?
         return contexteParcoursArborescence.getRepertoireRacine();
     }
 
@@ -98,7 +101,7 @@ public class Day7Part1And22022 {
         }
 
         public Repertoire getRepertoireEnfant(String repertoireEnfant) {
-            return enfants.stream().filter(r -> repertoireEnfant.equals(r.nom)).findFirst().get();
+            return enfants.stream().filter(r -> repertoireEnfant.equals(r.nom)).findFirst().orElseThrow();
         }
 
         public void ajouterRepertoireEnfant(String nomRepertoire) {
@@ -117,8 +120,8 @@ public class Day7Part1And22022 {
         Stack<Repertoire> cheminEnCours;
 
         public ContexteParcoursArborescence() {
-            racine = new Repertoire(NOM_REPERTOIRE_RACINE);
             cheminEnCours = new Stack<>();
+            racine = new Repertoire(NOM_REPERTOIRE_RACINE);
             cheminEnCours.add(racine);
         }
 
@@ -131,11 +134,11 @@ public class Day7Part1And22022 {
             cheminEnCours.add(repertoireEnfant);
         }
 
-        public void ajouterRepertoireEnfant(String nomRepertoire) {
+        public void ajouterRepertoireEnfantARepertoireCourant(String nomRepertoire) {
             cheminEnCours.peek().ajouterRepertoireEnfant(nomRepertoire);
         }
 
-        public void ajouterTailleFichierARepertoireEnCours(int tailleFichier) {
+        public void ajouterTailleFichierARepertoireEnCoursEtTousSesParents(int tailleFichier) {
             cheminEnCours.forEach(r -> r.ajouterTailleFichier(tailleFichier));
         }
 
@@ -144,7 +147,7 @@ public class Day7Part1And22022 {
         }
     }
 
-    private static interface LigneTerminal {
+    private interface LigneTerminal {
         void appliquerLigne(ContexteParcoursArborescence contexteParcoursArborescence);
 
     }
@@ -182,7 +185,7 @@ public class Day7Part1And22022 {
 
         @Override
         public void appliquerLigne(ContexteParcoursArborescence contexteParcoursArborescence) {
-            contexteParcoursArborescence.ajouterRepertoireEnfant(nomRepertoire);
+            contexteParcoursArborescence.ajouterRepertoireEnfantARepertoireCourant(nomRepertoire);
         }
     }
 
@@ -195,7 +198,7 @@ public class Day7Part1And22022 {
 
         @Override
         public void appliquerLigne(ContexteParcoursArborescence contexteParcoursArborescence) {
-            contexteParcoursArborescence.ajouterTailleFichierARepertoireEnCours(tailleFichier);
+            contexteParcoursArborescence.ajouterTailleFichierARepertoireEnCoursEtTousSesParents(tailleFichier);
         }
     }
 }
