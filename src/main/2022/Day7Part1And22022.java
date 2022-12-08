@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Day7Part1And22022 {
 
@@ -23,8 +22,6 @@ public class Day7Part1And22022 {
 
         tailles.sort(Collections.reverseOrder());
 
-        List<Long> collect = tailles.stream().filter(t -> t >= placeMinALiberer).collect(Collectors.toList());
-
         return tailles.stream().filter(t -> t >= placeMinALiberer).min(Long::compareTo).get();
     }
 
@@ -35,10 +32,8 @@ public class Day7Part1And22022 {
         assert lignes.get(0).equals("$ cd /") : "Le fichier doit commencer par un cd de la racine";
         assert lignes.get(1).equals("$ ls") : "La deuxième ligne doit demander un contenu de la racine";
 
-        Repertoire racine = new Repertoire("root");
-
         //TODO : passage par référence ok ?
-        ContexteParcoursArborescence contexteParcoursArborescence = new ContexteParcoursArborescence(racine);
+        ContexteParcoursArborescence contexteParcoursArborescence = new ContexteParcoursArborescence();
 
         for (int i = 2; i < lignes.size(); i++) {
             String ligne = lignes.get(i);
@@ -47,7 +42,7 @@ public class Day7Part1And22022 {
         }
 
         //TODO : passage par référence ok ?
-        return racine;
+        return contexteParcoursArborescence.getRepertoireRacine();
     }
 
     private static LigneTerminal convertirLigneEnLigneTerminal(String ligne) {
@@ -116,12 +111,13 @@ public class Day7Part1And22022 {
     }
 
     private static class ContexteParcoursArborescence {
+        public static final String NOM_REPERTOIRE_RACINE = "jesapelleroot";
         Repertoire racine;
 
         Stack<Repertoire> cheminEnCours;
 
-        public ContexteParcoursArborescence(Repertoire racine) {
-            this.racine = racine;
+        public ContexteParcoursArborescence() {
+            racine = new Repertoire(NOM_REPERTOIRE_RACINE);
             cheminEnCours = new Stack<>();
             cheminEnCours.add(racine);
         }
@@ -140,7 +136,11 @@ public class Day7Part1And22022 {
         }
 
         public void ajouterTailleFichierARepertoireEnCours(int tailleFichier) {
-            cheminEnCours.stream().forEach(r -> r.ajouterTailleFichier(tailleFichier));
+            cheminEnCours.forEach(r -> r.ajouterTailleFichier(tailleFichier));
+        }
+
+        public Repertoire getRepertoireRacine() {
+            return racine;
         }
     }
 
