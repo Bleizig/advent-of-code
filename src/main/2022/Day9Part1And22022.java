@@ -1,7 +1,7 @@
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Day9Part12022 {
+public class Day9Part1And22022 {
 
     public static void main(String[] args) {
         List<Mouvement> mouvements = recupererMouvements();
@@ -11,11 +11,10 @@ public class Day9Part12022 {
         System.out.println("Réponse=" + resultat);
     }
 
-
     private static List<Mouvement> recupererMouvements() {
         List<String> lignes = Util.lireFichier("entree.txt");
 
-        return lignes.stream().map(Day9Part12022::convertirLigneEnMouvement).collect(Collectors.toList());
+        return lignes.stream().map(Day9Part1And22022::convertirLigneEnMouvement).collect(Collectors.toList());
     }
 
     private static Mouvement convertirLigneEnMouvement(String ligne) {
@@ -33,16 +32,19 @@ public class Day9Part12022 {
     }
 
     private static class Simulation {
-        Point positionQueue;
-        Point positionTete;
+        final static int TAILLE_CORDE = 10;
+
+        List<Point> positions;
 
         Set<Point> positionsUniquesDeLaQueue;
 
         public Simulation() {
-            positionQueue = new Point(0, 0);
-            positionTete = new Point(0, 0);
+            positions = new ArrayList<>();
+            for (int i = 0; i < TAILLE_CORDE; i++) {
+                positions.add(new Point(0, 0));
+            }
             positionsUniquesDeLaQueue = new HashSet<>();
-            positionsUniquesDeLaQueue.add(positionQueue);
+            positionsUniquesDeLaQueue.add(positions.get(positions.size() - 1));
         }
 
         public void appliquerMouvementsTete(List<Mouvement> mouvements) {
@@ -56,18 +58,34 @@ public class Day9Part12022 {
 
 
         private void appliquerMouvementTete(Mouvement mouvement) {
-            positionTete = mouvement.recupererPositionArrivee(positionTete);
-            appliquerMouvementQueue();
+            positions.set(0, mouvement.recupererPositionArrivee(positions.get(0)));
+            for (int i = 1; i < TAILLE_CORDE; i++) {
+                appliquerMouvementNoeud(i);
+            }
         }
 
-        private void appliquerMouvementQueue() {
-            int ecartX = calculerEcartXTeteQueue();
-            int ecartY = calculerEcartYTeteQueue();
+        private void appliquerMouvementNoeud(int indexNoeud) {
+            Point positionNoeudPrecedent = positions.get(indexNoeud - 1);
+            Point positionNoeudABouger = positions.get(indexNoeud);
+
+            Mouvement mouvementQueue = determinerMouvementAAppliquer(positionNoeudPrecedent, positionNoeudABouger);
+
+            Point nouvellePositionNoeudABouger = mouvementQueue.recupererPositionArrivee(positionNoeudABouger);
+            positions.set(indexNoeud, nouvellePositionNoeudABouger);
+
+            if (indexNoeud == TAILLE_CORDE - 1) {
+                positionsUniquesDeLaQueue.add(nouvellePositionNoeudABouger);
+            }
+
+        }
+
+        private Mouvement determinerMouvementAAppliquer(Point positionNoeudCible, Point positionNoeudABouger) {
+            int ecartX = calculerEcartXNoeudPrecedentNoeudABouger(positionNoeudCible, positionNoeudABouger);
+            int ecartY = calculerEcartYNoeudPrecedentNoeudABouger(positionNoeudCible, positionNoeudABouger);
 
             int directionX = 0;
             int directionY = 0;
 
-            //TODO renommer ? decouper ? pas assez lisible !
             if (Math.abs(ecartX) == 2) {
                 directionX = ecartX / 2;
                 if (Math.abs(ecartY) == 1) {
@@ -81,22 +99,17 @@ public class Day9Part12022 {
                 }
             }
 
-            Mouvement mouvementQueue = new Mouvement(directionX, directionY);
-            deplacerQueueVers(mouvementQueue.recupererPositionArrivee(positionQueue));
+            return new Mouvement(directionX, directionY);
         }
 
-        private int calculerEcartYTeteQueue() {
-            return positionTete.y - positionQueue.y;
+        private int calculerEcartXNoeudPrecedentNoeudABouger(Point positionNoeudPrecedent, Point positionNoeudABouger) {
+            return positionNoeudPrecedent.x - positionNoeudABouger.x;
         }
 
-        private int calculerEcartXTeteQueue() {
-            return positionTete.x - positionQueue.x;
+        private int calculerEcartYNoeudPrecedentNoeudABouger(Point positionNoeudPrecedent, Point positionNoeudABouger) {
+            return positionNoeudPrecedent.y - positionNoeudABouger.y;
         }
 
-        private void deplacerQueueVers(Point nouvellePosition) {
-            positionQueue = nouvellePosition;
-            positionsUniquesDeLaQueue.add(positionQueue);
-        }
 
         public int recupererNombreDePositionsUniquesDeLaQueueContre() {
             return positionsUniquesDeLaQueue.size();
@@ -138,4 +151,5 @@ public class Day9Part12022 {
 
     private record Point(int x, int y) {
     }
+
 }
