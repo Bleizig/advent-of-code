@@ -20,7 +20,8 @@ public class Day6Part1And22022 {
 
         public int determinerIndexDebutMarqueurProtocole(int longueurMarqueur) {
             int indexLu = 0;
-            while (!estUnMarqueur(code.substring(indexLu, indexLu + longueurMarqueur), longueurMarqueur) && indexLu < code.length() - longueurMarqueur) {
+            int limiteLectureIndex = code.length() - longueurMarqueur;
+            while (!estUnMarqueur(code.substring(indexLu, indexLu + longueurMarqueur), longueurMarqueur) && indexLu < limiteLectureIndex) {
                 indexLu++;
             }
             return indexLu + longueurMarqueur;
