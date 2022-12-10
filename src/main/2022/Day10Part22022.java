@@ -55,13 +55,15 @@ public class Day10Part22022 {
         }
 
         private void afficherPixel() {
-
-            if (Math.abs(cyclesTermines % LONGUEUR_LIGNE - registre) <= 1) {
+            if (spriteConincideAvecCycle()) {
                 affichage += "#";
             } else {
                 affichage += ".";
             }
+        }
 
+        private boolean spriteConincideAvecCycle() {
+            return Math.abs(cyclesTermines % LONGUEUR_LIGNE - registre) <= 1;
         }
 
         public void ajouterAuRegistre(int valeur) {
