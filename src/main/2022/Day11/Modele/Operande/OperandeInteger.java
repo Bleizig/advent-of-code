@@ -1,4 +1,4 @@
-package Day11.Simulation.Modele.Operande;
+package Day11.Modele.Operande;
 
 public class OperandeInteger implements Operande {
     int valeur;

@@ -1,21 +1,16 @@
 package Day11;
 
 import Day11.Entree.LecteurInput;
-import Day11.Simulation.Modele.Singe;
-import Day11.Simulation.Simulation;
-
-import java.util.List;
+import Day11.Modele.Singes;
 
 public class Solution {
 
     public static void main(String[] args) {
         LecteurInput lecteurInput = new LecteurInput();
-        List<Singe> singes = lecteurInput.recupererSinges();
+        Singes singes = lecteurInput.recupererSinges();
+        singes.jouerNRounds(10000);
 
-        Simulation simulation = new Simulation(singes);
-        simulation.jouerNRounds(10000);
-
-        long resultat = simulation.recupererNiveauDeMonkeyBusiness();
+        long resultat = singes.recupererNiveauDeMonkeyBusiness();
         System.out.println("Réponse=" + resultat);
     }
 }

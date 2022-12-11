@@ -1,17 +1,19 @@
 package Day11.Entree;
 
-import Day11.Simulation.Modele.Operande.Operande;
-import Day11.Simulation.Modele.Operande.OperandeInteger;
-import Day11.Simulation.Modele.Operande.OperandeSelf;
-import Day11.Simulation.Modele.Operation;
-import Day11.Simulation.Modele.Singe;
-import Day11.Simulation.Modele.Test;
+import Day11.Modele.Operande.Operande;
+import Day11.Modele.Operande.OperandeInteger;
+import Day11.Modele.Operande.OperandeSelf;
+import Day11.Modele.Operation;
+import Day11.Modele.Singe;
+import Day11.Modele.Singes;
+import Day11.Modele.Test;
 import util.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class LecteurInput {
@@ -21,26 +23,12 @@ public class LecteurInput {
     public static final int INDEX_TEST_DIVISEUR = 3;
     public static final int INDEX_TEST_SINGE_VRAI = 4;
     public static final int INDEX_TEST_SINGE_FAUX = 5;
+    public static final Pattern PATTERN_OPERATION = Pattern.compile("Operation: new = (.*) (.) (.*)$");
 
     List<Singe> singes;
 
-    int produitDeTousLesDiviseurs;
-
     public LecteurInput() {
-        produitDeTousLesDiviseurs = 1;
         lireSinges();
-
-        adapteToutesLesFonctionsDeCalculPourResterDansDesNombresRaisonnables();
-    }
-
-    private void adapteToutesLesFonctionsDeCalculPourResterDansDesNombresRaisonnables() {
-        singes.forEach(this::adapteFonctionCalculSinge);
-    }
-
-    private void adapteFonctionCalculSinge(Singe singe) {
-        Operation operation = singe.getOperation();
-        BiFunction<Long, Long, Long> fonctionCalcul = operation.getFonctionCalcul();
-        operation.setFonctionCalcul((a, b) -> fonctionCalcul.apply(a, b) % produitDeTousLesDiviseurs);
     }
 
     private void lireSinges() {
@@ -76,13 +64,11 @@ public class LecteurInput {
         String ligneSingeFaux = lignesSinge.get(INDEX_TEST_SINGE_FAUX);
         int singeFaux = recupereSingeDeLigneSinge(ligneSingeFaux);
 
-        produitDeTousLesDiviseurs *= diviseur;
-
         return new Test(singeFaux, singeVrai, diviseur);
     }
 
-    private int recupereSingeDeLigneSinge(String ligneSingeVrai) {
-        return recupereEntierSitueEnFinDeChaineApresTexte(ligneSingeVrai, "monkey");
+    private int recupereSingeDeLigneSinge(String ligneSinge) {
+        return recupereEntierSitueEnFinDeChaineApresTexte(ligneSinge, "monkey");
     }
 
     private int recupereEntierSitueEnFinDeChaineApresTexte(String chaine, String texteAvantEntier) {
@@ -90,47 +76,26 @@ public class LecteurInput {
     }
 
     private Operation recupererOperation(List<String> lignesSinge) {
-        String ligneOperation = lignesSinge.get(INDEX_LIGNE_OPERATION);
-        String operationString = ligneOperation.substring(ligneOperation.indexOf('=') + 1).trim();
+        String ligne = lignesSinge.get(INDEX_LIGNE_OPERATION);
 
-
-        Operation operation;
-        if (operationString.indexOf('*') != -1) {
-            int indexOperateur = operationString.indexOf('*');
-            BiFunction<Long, Long, Long> fonctionCalcul = (o1, o2) -> o1 * o2;
-            operation = creeOperation(operationString, indexOperateur, fonctionCalcul);
-
-        } else {
-            int indexOperateur = operationString.indexOf('+');
-            operation = creeOperation(operationString, indexOperateur, Long::sum);
-
+        Matcher matcher = PATTERN_OPERATION.matcher(ligne);
+        if (!matcher.find()) {
+            throw new RuntimeException("Oh oh ...");
         }
 
-        return operation;
+        Operande operande1 = getOperandeFromString(matcher.group(1));
+        Operande operande2 = getOperandeFromString(matcher.group(3));
+        String operateur = matcher.group(2);
+
+        return switch (operateur) {
+            case "+" -> item -> operande1.getValeur(item) + operande2.getValeur(item);
+            case "*" -> item -> operande1.getValeur(item) * operande2.getValeur(item);
+            default -> throw new RuntimeException("L'opérateur '" + operateur + "' n'est pas géré");
+        };
     }
 
-    private Operation creeOperation(String operationString, int indexOperateur, BiFunction<Long, Long, Long> fonctionCalcul) {
-        Operation operation;
-        String operande1String = operationString.substring(0, indexOperateur).trim();
-        String operande2String = operationString.substring(indexOperateur + 1).trim();
-
-        Operande operande1;
-        Operande operande2;
-
-        if (estUnNombre(operande1String)) {
-            operande1 = new OperandeInteger(Integer.parseInt(operande1String));
-        } else {
-            operande1 = new OperandeSelf();
-        }
-
-        if (estUnNombre(operande2String)) {
-            operande2 = new OperandeInteger(Integer.parseInt(operande2String));
-        } else {
-            operande2 = new OperandeSelf();
-        }
-
-        operation = new Operation(operande1, operande2, fonctionCalcul);
-        return operation;
+    private Operande getOperandeFromString(String operandeString) {
+        return estUnNombre(operandeString) ? new OperandeInteger(Integer.parseInt(operandeString)) : new OperandeSelf();
     }
 
     private boolean estUnNombre(String string) {
@@ -142,8 +107,8 @@ public class LecteurInput {
         return Arrays.stream(ligneItems.substring(ligneItems.indexOf(':') + 1).split(",")).map(c -> Integer.parseInt(c.trim())).toList();
     }
 
-    public List<Singe> recupererSinges() {
-        return singes;
+    public Singes recupererSinges() {
+        return new Singes(singes);
     }
 
 }

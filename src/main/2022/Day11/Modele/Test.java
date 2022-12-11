@@ -1,4 +1,4 @@
-package Day11.Simulation.Modele;
+package Day11.Modele;
 
 public class Test {
     private final int singeTestFaux;
@@ -13,5 +13,9 @@ public class Test {
 
     public int appliqueTest(Long item) {
         return item % diviseur == 0 ? singeTestVrai : singeTestFaux;
+    }
+
+    public int getDiviseur() {
+        return diviseur;
     }
 }

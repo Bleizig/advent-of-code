@@ -1,4 +1,4 @@
-package Day11.Simulation.Modele;
+package Day11.Modele;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -6,7 +6,7 @@ import java.util.Queue;
 public class Singe {
     private static final int FACTEUR_DE_BAISSE_INQUIETUDE = 3;
     private final Queue<Long> items;
-    private final Operation operation;
+    private Operation operation;
     private final Test test;
 
     private int nombreInspectionsEffectuees;
@@ -60,5 +60,13 @@ public class Singe {
 
     public Operation getOperation() {
         return operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
+    }
+
+    public int getDiviseurDeTest() {
+        return test.getDiviseur();
     }
 }

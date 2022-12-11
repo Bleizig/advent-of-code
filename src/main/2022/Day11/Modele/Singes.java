@@ -1,18 +1,24 @@
-package Day11.Simulation;
-
-import Day11.Simulation.Modele.Lancer;
-import Day11.Simulation.Modele.Singe;
+package Day11.Modele;
 
 import java.util.Comparator;
 import java.util.List;
 
-public class Simulation {
+public class Singes {
 
     List<Singe> singes;
 
-    //TODO passage par référence ...
-    public Simulation(List<Singe> singes) {
+    public Singes(List<Singe> singes) {
         this.singes = singes;
+        adapteOperationsPourEviterGrandsNombres();
+    }
+
+    private void adapteOperationsPourEviterGrandsNombres() {
+        int produitDeTousLesDiviseurs = singes.stream().map(Singe::getDiviseurDeTest).reduce((a, b) -> a * b).orElseThrow();
+
+        singes.forEach(singe -> {
+            Operation vieilleOperation = singe.getOperation();
+            singe.setOperation(item -> vieilleOperation.appliqueOperation(item) % produitDeTousLesDiviseurs);
+        });
     }
 
     public long recupererNiveauDeMonkeyBusiness() {

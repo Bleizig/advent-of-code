@@ -1,4 +1,4 @@
-package Day11.Simulation.Modele;
+package Day11.Modele;
 
 public record Lancer(int singeDestinataire, Long item) {
 }
