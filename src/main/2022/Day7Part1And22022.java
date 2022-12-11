@@ -1,3 +1,5 @@
+import util.Util;
+
 import java.util.*;
 
 public class Day7Part1And22022 {

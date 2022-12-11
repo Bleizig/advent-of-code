@@ -1,3 +1,5 @@
+package util;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -5,7 +7,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-class Util {
+public class Util {
 
     public static List<String> lireFichier(String nomFichier) {
         File fichier = new File(Util.class.getClassLoader().getResource(nomFichier).getFile());

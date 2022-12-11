@@ -1,3 +1,5 @@
+import util.Util;
+
 import java.util.List;
 
 public class Day11Part1 {
