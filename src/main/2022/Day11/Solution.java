@@ -9,12 +9,13 @@ import java.util.List;
 public class Solution {
 
     public static void main(String[] args) {
-        List<Singe> singes = LecteurInput.recupererSinges();
+        LecteurInput lecteurInput = new LecteurInput();
+        List<Singe> singes = lecteurInput.recupererSinges();
 
         Simulation simulation = new Simulation(singes);
-        simulation.jouerNRounds(20);
+        simulation.jouerNRounds(10000);
 
-        int resultat = simulation.recupererNiveauDeMonkeyBusiness();
+        long resultat = simulation.recupererNiveauDeMonkeyBusiness();
         System.out.println("Réponse=" + resultat);
     }
 }

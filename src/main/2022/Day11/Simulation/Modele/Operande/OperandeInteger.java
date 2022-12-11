@@ -8,8 +8,8 @@ public class OperandeInteger implements Operande {
     }
 
     @Override
-    public Integer getValeur(Integer item) {
-        return valeur;
+    public Long getValeur(Long item) {
+        return (long) valeur;
     }
 }
 

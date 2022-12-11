@@ -13,11 +13,10 @@ public class Simulation {
     //TODO passage par référence ...
     public Simulation(List<Singe> singes) {
         this.singes = singes;
-
     }
 
-    public int recupererNiveauDeMonkeyBusiness() {
-        return singes.stream().map(Singe::nombreInspectionsEffectuees).sorted(Comparator.reverseOrder()).limit(2).reduce((a, b) -> a * b).orElseThrow();
+    public long recupererNiveauDeMonkeyBusiness() {
+        return singes.stream().map(s -> (long) s.nombreInspectionsEffectuees()).sorted(Comparator.reverseOrder()).limit(2).reduce((a, b) -> a * b).orElseThrow();
     }
 
     public void jouerNRounds(int nbRounds) {

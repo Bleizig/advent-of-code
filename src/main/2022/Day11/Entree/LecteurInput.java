@@ -22,20 +22,40 @@ public class LecteurInput {
     public static final int INDEX_TEST_SINGE_VRAI = 4;
     public static final int INDEX_TEST_SINGE_FAUX = 5;
 
-    public static List<Singe> recupererSinges() {
+    List<Singe> singes;
+
+    int produitDeTousLesDiviseurs;
+
+    public LecteurInput() {
+        produitDeTousLesDiviseurs = 1;
+        lireSinges();
+
+        adapteToutesLesFonctionsDeCalculPourResterDansDesNombresRaisonnables();
+    }
+
+    private void adapteToutesLesFonctionsDeCalculPourResterDansDesNombresRaisonnables() {
+        singes.forEach(this::adapteFonctionCalculSinge);
+    }
+
+    private void adapteFonctionCalculSinge(Singe singe) {
+        Operation operation = singe.getOperation();
+        BiFunction<Long, Long, Long> fonctionCalcul = operation.getFonctionCalcul();
+        operation.setFonctionCalcul((a, b) -> fonctionCalcul.apply(a, b) % produitDeTousLesDiviseurs);
+    }
+
+    private void lireSinges() {
         List<String> lignes = Util.lireFichier("entree.txt");
 
         lignes = lignes.stream().filter(l -> !l.isBlank()).collect(Collectors.toList());
 
-        List<Singe> singes = new ArrayList<>();
+        singes = new ArrayList<>();
 
         for (int i = 0; i < lignes.size(); i += TAILLE_BLOC_SINGE) {
             singes.add(recupererSinge(lignes.subList(i, i + TAILLE_BLOC_SINGE)));
         }
-        return singes;
     }
 
-    private static Singe recupererSinge(List<String> lignesSinge) {
+    private Singe recupererSinge(List<String> lignesSinge) {
         List<Integer> items = recupererItems(lignesSinge);
         Operation operation = recupererOperation(lignesSinge);
         Test test = recupererTest(lignesSinge);
@@ -46,7 +66,7 @@ public class LecteurInput {
         return singe;
     }
 
-    private static Test recupererTest(List<String> lignesSinge) {
+    private Test recupererTest(List<String> lignesSinge) {
         String ligneDiviseur = lignesSinge.get(INDEX_TEST_DIVISEUR);
         int diviseur = recupereEntierSitueEnFinDeChaineApresTexte(ligneDiviseur, "by");
 
@@ -56,18 +76,20 @@ public class LecteurInput {
         String ligneSingeFaux = lignesSinge.get(INDEX_TEST_SINGE_FAUX);
         int singeFaux = recupereSingeDeLigneSinge(ligneSingeFaux);
 
+        produitDeTousLesDiviseurs *= diviseur;
+
         return new Test(singeFaux, singeVrai, diviseur);
     }
 
-    private static int recupereSingeDeLigneSinge(String ligneSingeVrai) {
+    private int recupereSingeDeLigneSinge(String ligneSingeVrai) {
         return recupereEntierSitueEnFinDeChaineApresTexte(ligneSingeVrai, "monkey");
     }
 
-    private static int recupereEntierSitueEnFinDeChaineApresTexte(String chaine, String texteAvantEntier) {
+    private int recupereEntierSitueEnFinDeChaineApresTexte(String chaine, String texteAvantEntier) {
         return Integer.parseInt(chaine.substring(chaine.indexOf(texteAvantEntier) + texteAvantEntier.length()).trim());
     }
 
-    private static Operation recupererOperation(List<String> lignesSinge) {
+    private Operation recupererOperation(List<String> lignesSinge) {
         String ligneOperation = lignesSinge.get(INDEX_LIGNE_OPERATION);
         String operationString = ligneOperation.substring(ligneOperation.indexOf('=') + 1).trim();
 
@@ -93,7 +115,7 @@ public class LecteurInput {
                 operande2 = new OperandeSelf();
             }
 
-            BiFunction<Integer, Integer, Integer> fonctionCalcul = (o1, o2) -> o1 * o2;
+            BiFunction<Long, Long, Long> fonctionCalcul = (o1, o2) -> o1 * o2;
 
             operation = new Operation(operande1, operande2, fonctionCalcul);
 
@@ -117,19 +139,23 @@ public class LecteurInput {
                 operande2 = new OperandeSelf();
             }
 
-            operation = new Operation(operande1, operande2, Integer::sum);
+            operation = new Operation(operande1, operande2, Long::sum);
         }
 
         return operation;
     }
 
-    private static boolean estUnNombre(String string) {
+    private boolean estUnNombre(String string) {
         return string.chars().allMatch(Character::isDigit);
     }
 
-    private static List<Integer> recupererItems(List<String> lignesSinge) {
+    private List<Integer> recupererItems(List<String> lignesSinge) {
         String ligneItems = lignesSinge.get(INDEX_LIGNE_ITEMS);
         return Arrays.stream(ligneItems.substring(ligneItems.indexOf(':') + 1).split(",")).map(c -> Integer.parseInt(c.trim())).toList();
+    }
+
+    public List<Singe> recupererSinges() {
+        return singes;
     }
 
 }

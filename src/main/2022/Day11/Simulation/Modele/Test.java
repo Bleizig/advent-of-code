@@ -11,7 +11,7 @@ public class Test {
         this.diviseur = diviseur;
     }
 
-    public int appliqueTest(Integer item) {
+    public int appliqueTest(Long item) {
         return item % diviseur == 0 ? singeTestVrai : singeTestFaux;
     }
 }

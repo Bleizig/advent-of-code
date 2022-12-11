@@ -5,9 +5,9 @@ import java.util.Queue;
 
 public class Singe {
     private static final int FACTEUR_DE_BAISSE_INQUIETUDE = 3;
-    private final Queue<Integer> items;
-    private Operation operation;
-    private Test test;
+    private final Queue<Long> items;
+    private final Operation operation;
+    private final Test test;
 
     private int nombreInspectionsEffectuees;
 
@@ -31,31 +31,34 @@ public class Singe {
             throw new RuntimeException("Ce cas n'est pas prévu, ne pas oublier d'utiliser aAuMoinsUnItem() préalablement");
         }
 
-        Integer item = items.poll();
+        Long item = items.poll();
 
         item = effectueOperationInspection(item);
-        item = effectueBaisseInquietude(item);
+        //item = effectueBaisseInquietude(item);
         int prochainSinge = determineProchainSinge(item);
 
         return new Lancer(prochainSinge, item);
     }
 
-    public void receptionnerItem(int item) {
+    public void receptionnerItem(long item) {
         items.add(item);
     }
 
-    private int determineProchainSinge(Integer item) {
+    private int determineProchainSinge(long item) {
         return test.appliqueTest(item);
     }
 
-    private Integer effectueBaisseInquietude(Integer item) {
+    private Long effectueBaisseInquietude(long item) {
         return item / FACTEUR_DE_BAISSE_INQUIETUDE;
     }
 
-    private Integer effectueOperationInspection(Integer item) {
+    private Long effectueOperationInspection(long item) {
         item = operation.appliqueOperation(item);
         nombreInspectionsEffectuees++;
         return item;
     }
 
+    public Operation getOperation() {
+        return operation;
+    }
 }
