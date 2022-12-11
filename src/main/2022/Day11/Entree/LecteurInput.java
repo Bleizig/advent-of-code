@@ -97,51 +97,39 @@ public class LecteurInput {
         Operation operation;
         if (operationString.indexOf('*') != -1) {
             int indexOperateur = operationString.indexOf('*');
-            String operande1String = operationString.substring(0, indexOperateur).trim();
-            String operande2String = operationString.substring(indexOperateur + 1).trim();
-
-            Operande operande1;
-            Operande operande2;
-
-            if (estUnNombre(operande1String)) {
-                operande1 = new OperandeInteger(Integer.parseInt(operande1String));
-            } else {
-                operande1 = new OperandeSelf();
-            }
-
-            if (estUnNombre(operande2String)) {
-                operande2 = new OperandeInteger(Integer.parseInt(operande2String));
-            } else {
-                operande2 = new OperandeSelf();
-            }
-
             BiFunction<Long, Long, Long> fonctionCalcul = (o1, o2) -> o1 * o2;
-
-            operation = new Operation(operande1, operande2, fonctionCalcul);
+            operation = creeOperation(operationString, indexOperateur, fonctionCalcul);
 
         } else {
             int indexOperateur = operationString.indexOf('+');
-            String operande1String = operationString.substring(0, indexOperateur).trim();
-            String operande2String = operationString.substring(indexOperateur + 1).trim();
+            operation = creeOperation(operationString, indexOperateur, Long::sum);
 
-            Operande operande1;
-            Operande operande2;
-
-            if (estUnNombre(operande1String)) {
-                operande1 = new OperandeInteger(Integer.parseInt(operande1String));
-            } else {
-                operande1 = new OperandeSelf();
-            }
-
-            if (estUnNombre(operande2String)) {
-                operande2 = new OperandeInteger(Integer.parseInt(operande2String));
-            } else {
-                operande2 = new OperandeSelf();
-            }
-
-            operation = new Operation(operande1, operande2, Long::sum);
         }
 
+        return operation;
+    }
+
+    private Operation creeOperation(String operationString, int indexOperateur, BiFunction<Long, Long, Long> fonctionCalcul) {
+        Operation operation;
+        String operande1String = operationString.substring(0, indexOperateur).trim();
+        String operande2String = operationString.substring(indexOperateur + 1).trim();
+
+        Operande operande1;
+        Operande operande2;
+
+        if (estUnNombre(operande1String)) {
+            operande1 = new OperandeInteger(Integer.parseInt(operande1String));
+        } else {
+            operande1 = new OperandeSelf();
+        }
+
+        if (estUnNombre(operande2String)) {
+            operande2 = new OperandeInteger(Integer.parseInt(operande2String));
+        } else {
+            operande2 = new OperandeSelf();
+        }
+
+        operation = new Operation(operande1, operande2, fonctionCalcul);
         return operation;
     }
 
